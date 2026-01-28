@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Peptide ROI Calculator | PeptideClinicGrowth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --accent: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--gray);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-section {
+            background: var(--dark-light);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInLeft 0.8s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon { font-size: 28px; }
+
+        .input-group { margin-bottom: 30px; }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        .input-value {
+            font-family: 'Space Mono', monospace;
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
+            transition: all 0.3s;
+        }
+
+        .input-helper {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .peptide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .peptide-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .peptide-option:hover {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--primary);
+        }
+
+        .peptide-option.selected {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: var(--primary);
+        }
+
+        .peptide-option.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: var(--primary);
+            font-weight: 900;
+            font-size: 16px;
+        }
+
+        .peptide-name {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .peptide-price { font-size: 11px; color: var(--gray); }
+
+        .results-section {
+            background: linear-gradient(135deg, var(--dark-light) 0%, #0f172a 100%);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInRight 0.8s ease-out;
+            animation-delay: 0.3s;
+            animation-fill-mode: both;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .big-number {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(14, 165, 233, 0.1);
+            border-radius: 16px;
+            border: 2px solid var(--primary);
+        }
+
+        .big-number-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+            margin-bottom: 12px;
+        }
+
+        .big-number-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .metric-label { font-size: 12px; color: var(--gray); margin-bottom: 8px; text-transform: uppercase; }
+        .metric-value { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: #fff; }
+        .metric-change { font-size: 12px; color: var(--secondary); margin-top: 4px; }
+
+        .breakdown-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 30px;
+        }
+
+        .breakdown-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #fff; }
+        .breakdown-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .breakdown-item:last-child { border-bottom: none; }
+        .breakdown-label { font-size: 14px; color: var(--gray); }
+        .breakdown-value { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: #fff; }
+
+        .lead-capture {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .email-form { display: flex; gap: 12px; max-width: 500px; margin: 0 auto; }
+        .email-input { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .submit-btn { padding: 16px 32px; background: #fff; color: var(--primary); border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+        .success-message { display: none; background: var(--secondary); padding: 30px; border-radius: 16px; margin-top: 30px; }
+        .success-message.show { display: block; }
+        .download-btn { margin-top: 20px; padding: 16px 32px; background: #fff; color: var(--secondary); border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+        .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: var(--gray); font-size: 14px; }
+        .footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .calculator-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 32px; }
+            .email-form { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-badge">🧬 Free Tool</div>
+            <h1>Peptide ROI Calculator</h1>
+            <p class="subtitle">Discover how much revenue your clinic could generate with a peptide program. Results in 60 seconds.</p>
+        </div>
+
+        <div class="calculator-grid">
+            <div class="input-section">
+                <h2 class="section-title"><span class="section-icon">⚙️</span> Your Clinic Details</h2>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Monthly Patient Visits</span>
+                        <span class="input-value" id="patientsValue">100</span>
+                    </div>
+                    <input type="range" id="patients" min="20" max="500" value="100" step="10">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Conversion Rate</span>
+                        <span class="input-value" id="conversionValue">15%</span>
+                    </div>
+                    <input type="range" id="conversion" min="5" max="50" value="15" step="1">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">
+                        <span>Patient Retention</span>
+                        <span class="input-value" id="retentionValue">6 months</span>
+                    </div>
+                    <input type="range" id="retention" min="1" max="24" value="6" step="1">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label"><span>Select Peptides to Offer</span></div>
+                    <div class="peptide-grid">
+                        <div class="peptide-option selected" data-peptide="retatrutide">
+                            <div class="peptide-name">Retatrutide</div>
+                            <div class="peptide-price">$800/mo charge</div>
+                        </div>
+                        <div class="peptide-option selected" data-peptide="bpc157">
+                            <div class="peptide-name">BPC-157/TB-500</div>
+                            <div class="peptide-price">$600/mo charge</div>
+                        </div>
+                        <div class="peptide-option selected" data-peptide="cjc">
+                            <div class="peptide-name">CJC-1295/Ipamorelin</div>
+                            <div class="peptide-price">$400/mo charge</div>
+                        </div>
+                        <div class="peptide-option selected" data-peptide="ghkcu">
+                            <div class="peptide-name">GHK-CU</div>
+                            <div class="peptide-price">$400/mo charge</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="results-content">
+                    <h2 class="section-title"><span class="section-icon">💰</span> Your Revenue Potential</h2>
+                    <div class="big-number">
+                        <div class="big-number-label">Year 1 Total Revenue</div>
+                        <div class="big-number-value" id="annualRevenue">$0</div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Monthly Steady State</div>
+                            <div class="metric-value" id="monthlyRevenue">$0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Max Active Patients</div>
+                            <div class="metric-value" id="activePatients">0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Avg. Patient Value</div>
+                            <div class="metric-value" id="patientValue">$0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Lifetime Value</div>
+                            <div class="metric-value" id="lifetimeValue">$0</div>
+                            <div class="metric-change" id="lifetimeLabel">Per patient</div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-section">
+                        <div class="breakdown-title">📊 Growth Timeline</div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Month 1 Revenue</span>
+                            <span class="breakdown-value" id="month1">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Month 3 Revenue</span>
+                            <span class="breakdown-value" id="month3">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Month 6 Revenue</span>
+                            <span class="breakdown-value" id="month6">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lead-capture">
+            <h3>📥 Get Your Full ROI Report</h3>
+            <form class="email-form" id="emailForm">
+                <input type="email" class="email-input" id="emailInput" placeholder="your@email.com" required>
+                <button type="submit" class="submit-btn">Get My Report →</button>
+            </form>
+            <div class="success-message" id="successMessage">
+                <h4>🎉 Your report is ready!</h4>
+                <button class="download-btn" id="downloadBtn">📄 Download PDF Report</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Made with 🧬 by <a href="#">@PeptideClinicGrowth</a></p>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            patients: 100,
+            conversion: 15,
+            retention: 6,
+            selectedPeptides: ['retatrutide', 'bpc157', 'cjc', 'ghkcu']
+        };
+
+        const peptideData = {
+            retatrutide: { charge: 800, cost: 120 },
+            bpc157: { charge: 600, cost: 100 },
+            cjc: { charge: 400, cost: 80 },
+            ghkcu: { charge: 400, cost: 80 }
+        };
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function calculateROI() {
+            const newPatientsPerMonth = state.patients * (state.conversion / 100);
+            
+            let totalCharge = 0;
+            state.selectedPeptides.forEach(p => {
+                if (peptideData[p]) totalCharge += peptideData[p].charge;
+            });
+
+            const avgCharge = state.selectedPeptides.length > 0 ? totalCharge / state.selectedPeptides.length : 0;
+            
+            // Monthly revenue in "Steady State" (when churn equals acquisition)
+            const maxActivePatients = newPatientsPerMonth * state.retention;
+            const monthlySteadyState = maxActivePatients * avgCharge;
+
+            // Yearly Total (Accounting for Month 1-12 Ramp Up)
+            let annualTotal = 0;
+            for (let m = 1; m <= 12; m++) {
+                const activeCohorts = Math.min(m, state.retention);
+                annualTotal += (activeCohorts * newPatientsPerMonth * avgCharge);
+            }
+
+            return {
+                annualRevenue: annualTotal,
+                monthlyRevenue: monthlySteadyState,
+                activePatients: Math.round(maxActivePatients),
+                patientValue: avgCharge,
+                lifetimeValue: avgCharge * state.retention,
+                month1: newPatientsPerMonth * avgCharge,
+                month3: (Math.min(3, state.retention) * newPatientsPerMonth) * avgCharge,
+                month6: (Math.min(6, state.retention) * newPatientsPerMonth) * avgCharge
+            };
+        }
+
+        function updateUI() {
+            const results = calculateROI();
+            document.getElementById('annualRevenue').textContent = formatCurrency(results.annualRevenue);
+            document.getElementById('monthlyRevenue').textContent = formatCurrency(results.monthlyRevenue);
+            document.getElementById('activePatients').textContent = results.activePatients;
+            document.getElementById('patientValue').textContent = formatCurrency(results.patientValue);
+            document.getElementById('lifetimeValue').textContent = formatCurrency(results.lifetimeValue);
+            document.getElementById('lifetimeLabel').textContent = `Per patient (${state.retention} mo)`;
+            document.getElementById('month1').textContent = formatCurrency(results.month1);
+            document.getElementById('month3').textContent = formatCurrency(results.month3);
+            document.getElementById('month6').textContent = formatCurrency(results.month6);
+        }
+
+        document.getElementById('patients').addEventListener('input', (e) => {
+            state.patients = parseInt(e.target.value);
+            document.getElementById('patientsValue').textContent = state.patients;
+            updateUI();
+        });
+
+        document.getElementById('conversion').addEventListener('input', (e) => {
+            state.conversion = parseInt(e.target.value);
+            document.getElementById('conversionValue').textContent = state.conversion + '%';
+            updateUI();
+        });
+
+        document.getElementById('retention').addEventListener('input', (e) => {
+            state.retention = parseInt(e.target.value);
+            document.getElementById('retentionValue').textContent = state.retention + ' months';
+            updateUI();
+        });
+
+        document.querySelectorAll('.peptide-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const id = option.dataset.peptide;
+                if (state.selectedPeptides.includes(id)) {
+                    state.selectedPeptides = state.selectedPeptides.filter(p => p !== id);
+                    option.classList.remove('selected');
+                } else {
+                    state.selectedPeptides.push(id);
+                    option.classList.add('selected');
+                }
+                updateUI();
+            });
+        });
+
+        document.getElementById('emailForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('emailForm').style.display = 'none';
+            document.getElementById('successMessage').classList.add('show');
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const results = calculateROI();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Peptide ROI Report', 20, 20);
+            doc.text(`Annual Revenue: ${formatCurrency(results.annualRevenue)}`, 20, 40);
+            doc.text(`Monthly Steady State: ${formatCurrency(results.monthlyRevenue)}`, 20, 50);
+            doc.text(`Lifetime Value: ${formatCurrency(results.lifetimeValue)}`, 20, 60);
+            doc.save('peptide-roi.pdf');
+        });
+
+        updateUI();
+    </script>
+</body>
+</html>
