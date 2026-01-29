@@ -43,7 +43,7 @@
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 40px;
             animation: fadeInDown 0.8s ease-out;
         }
 
@@ -67,7 +67,7 @@
         }
 
         h1 {
-            font-size: 48px;
+            font-size: clamp(32px, 5vw, 48px); /* Responsive font size */
             font-weight: 800;
             margin-bottom: 16px;
             background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
@@ -78,11 +78,12 @@
         }
 
         .subtitle {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--gray);
             font-weight: 400;
             max-width: 600px;
             margin: 0 auto;
+            line-height: 1.5;
         }
 
         /* Calculator Grid */
@@ -97,7 +98,7 @@
         .input-section {
             background: var(--dark-light);
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px; /* Reduced padding slightly for tablets */
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: fadeInLeft 0.8s ease-out;
             animation-delay: 0.2s;
@@ -127,7 +128,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -153,8 +154,8 @@
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px; /* Larger hit area for touch */
+            height: 24px;
             background: var(--primary);
             cursor: pointer;
             border-radius: 50%;
@@ -181,7 +182,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid transparent;
             border-radius: 12px;
-            padding: 16px;
+            padding: 14px;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -220,7 +221,7 @@
         .results-section {
             background: linear-gradient(135deg, var(--dark-light) 0%, #0f172a 100%);
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px;
             border: 1px solid rgba(14, 165, 233, 0.2);
             position: relative;
             overflow: hidden;
@@ -254,32 +255,35 @@
 
         .big-number {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
+            margin-bottom: 30px;
+            padding: 24px;
             background: rgba(14, 165, 233, 0.1);
             border-radius: 16px;
             border: 2px solid var(--primary);
+            /* Prevents overflowing */
+            width: 100%;
+            word-wrap: break-word;
         }
 
         .big-number-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--gray);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .big-number-value {
             font-family: 'Space Mono', monospace;
-            font-size: 56px;
+            /* Dynamic sizing: never smaller than 32px, prefers 6vw, never bigger than 56px */
+            font-size: clamp(32px, 6vw, 56px);
+            line-height: 1.1;
             font-weight: 700;
             color: var(--primary);
             text-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
             animation: countUp 0.8s ease-out;
-            /* Ensure long numbers break if necessary */
-            overflow-wrap: break-word;
-            word-wrap: break-word;
+            white-space: nowrap; /* Tries to keep on one line if possible within clamp */
         }
 
         @keyframes countUp {
@@ -293,14 +297,14 @@
         .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 30px;
         }
 
         .metric-card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s;
         }
@@ -311,27 +315,29 @@
         }
 
         .metric-label {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--gray);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .metric-value {
             font-family: 'Space Mono', monospace;
-            font-size: 28px;
+            /* Dynamic sizing for metrics too */
+            font-size: clamp(20px, 4vw, 28px);
             font-weight: 700;
             color: #fff;
+            word-wrap: break-word;
         }
 
-        .metric-change { font-size: 12px; color: var(--secondary); margin-top: 4px; }
+        .metric-change { font-size: 11px; color: var(--secondary); margin-top: 4px; }
 
         /* Breakdown */
         .breakdown-section {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            padding: 24px;
+            padding: 20px;
             margin-top: 30px;
         }
 
@@ -345,7 +351,12 @@
         }
         .breakdown-item:last-child { border-bottom: none; }
         .breakdown-label { font-size: 14px; color: var(--gray); }
-        .breakdown-value { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: #fff; }
+        .breakdown-value { 
+            font-family: 'Space Mono', monospace; 
+            font-size: clamp(14px, 4vw, 16px);
+            font-weight: 700; 
+            color: #fff; 
+        }
 
         /* Lead Capture */
         .lead-capture {
@@ -364,8 +375,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .lead-capture h3 { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
-        .lead-capture p { font-size: 16px; margin-bottom: 30px; opacity: 0.9; }
+        .lead-capture h3 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .lead-capture p { font-size: 15px; margin-bottom: 30px; opacity: 0.9; }
 
         .email-form { display: flex; gap: 12px; max-width: 500px; margin: 0 auto; }
         .email-input {
@@ -378,9 +389,10 @@
         .email-input:focus { background: rgba(255, 255, 255, 0.15); border-color: #fff; }
         .email-input::placeholder { color: rgba(255, 255, 255, 0.5); }
         .submit-btn {
-            padding: 16px 32px; background: #fff; color: var(--primary);
+            padding: 16px 24px; background: #fff; color: var(--primary);
             border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
             cursor: pointer; transition: all 0.3s; font-family: 'Sora', sans-serif;
+            white-space: nowrap;
         }
         .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
 
@@ -402,36 +414,22 @@
         }
         .footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
 
-        /* Responsive Fixes */
-        @media (max-width: 768px) {
+        /* KEY FIX: Increased breakpoint to 1024px to catch Tablets in Portrait Mode */
+        @media (max-width: 1024px) {
             .calculator-grid { grid-template-columns: 1fr; }
-            h1 { font-size: 32px; }
             
-            /* Reduced padding on mobile to give text more width */
-            .input-section, .results-section { padding: 20px; }
-            .big-number { padding: 20px 10px; }
-
-            /* Dynamic Font Scaling to prevent overflow */
-            /* clamp(min, preferred, max) ensures it fits */
-            .big-number-value {
-                font-size: clamp(32px, 10vw, 44px);
-                line-height: 1.1;
-            }
-
-            .peptide-grid { grid-template-columns: 1fr; }
+            .input-section, .results-section { padding: 24px; }
             
-            /* Adjust metric cards */
+            .peptide-grid { grid-template-columns: 1fr; } /* Stack peptide buttons on smaller screens */
+
+            /* Metrics grid stays 2-column but with smaller text */
             .metrics-grid { 
-                grid-template-columns: 1fr 1fr; /* Keep side by side but smaller */
+                grid-template-columns: 1fr 1fr; 
                 gap: 10px;
             }
-            .metric-card { padding: 12px; }
-            .metric-value { 
-                font-size: clamp(18px, 6vw, 24px); 
-            }
-            .metric-change { font-size: 10px; }
-
+            
             .email-form { flex-direction: column; }
+            .submit-btn { width: 100%; }
         }
     </style>
 </head>
